@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html ng-app="spoti_dup">
+<head>
+	<title>Spotify Duplicate Remover</title>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.min.js"></script>
+	<script src="controllers/main.controller.js"></script>
+	<script src="js/angular-spotify.min.js"></script>
+
+	<!-- stylesheet -->
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+	<!-- /stylesheet -->
+
+</head>
+
+<body>
+	<div class="container" ng-controller="MainController">
+		<header class="app-header">
+			<h1 class="app-title">{{ appTitle }}</h1>
+			<h1 class="app-headline">{{ appHeadline }}</h1>
+		</header>
+
+		<section class="app-body">
+			<!--<section class="archive-control">
+				<span>{{ remaining() }} of {{ todos.length }} remaining</span>
+				<p>[ <a href="" data-ng-click="archive()">Remove Completed Items</a> ]</p>
+			</section>-->
+
+			<!--<ul class="unstyled">
+				<li data-ng-repeat="todo in todos track by $index">
+					<input type="checkbox" data-ng-model="todo.done">
+					<span class="done-{{ todo.done }}">{{ todo.text }}</span>
+				</li>
+			</ul>-->
+
+			<!--<form data-ng-submit="addTodo()" class="todo-form">
+				<input type="text" data-ng-model="todoText" placeholder="Enter new ToDo item" />
+				<br />
+				<input type="submit" value="Add Task" />
+			</form>-->
+			<button ng-click="login()">Login with Spotify</button>
+
+			<input type="text" ng-model="searchartist" ng-change="searchArtist()" placeholder="Search for an artist">
+			<br></br>
+
+			<ul>
+				<li ng-repeat="artist in artists">
+					<a class="media" ng-href="{{artist.external_urls.spotify}}" target="_blank">
+						<img ng-src="{{artist.images[0].url}}" alt="">
+						<div class="media-details">
+							{{artist.name}}
+						</div>
+					</a>
+				</li>
+			</ul>
+		</section>
+	</div>
+</body>
+</html>
