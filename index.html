@@ -1,59 +1,91 @@
 <!DOCTYPE html>
 <html ng-app="spoti_dup">
 <head>
-	<title>Spotify Duplicate Remover</title>
 
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.min.js"></script>
 	<script src="controllers/main.controller.js"></script>
 	<script src="js/angular-spotify.min.js"></script>
 
-	<!-- stylesheet -->
-	<link rel="stylesheet" type="text/css" href="css/style.css">
-	<!-- /stylesheet -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+	<meta charset="utf-8">
+	<title>Spotify dedup - Deleting duplicated songs from your Spotify library</title>
+	<meta name="description" content="Remove duplicates from your Spotify Playlists">
+	<meta name="og:description" content="Remove duplicates from your Spotify Playlists">
+	<meta name="twitter:description" content="Remove duplicates from your Spotify Playlists">
+	<meta name="og:title" content="Spotify dedup - Deleting duplicated songs from your Spotify library">
+	<meta name="twitter:title" content="Spotify dedup - Deleting duplicated songs from your Spotify library">
+	<meta name="viewport" content="width=device-width">
 
 </head>
 
 <body>
 	<div class="container" ng-controller="MainController">
-		<header class="app-header">
-			<h1 class="app-title">{{ appTitle }}</h1>
-			<h1 class="app-headline">{{ appHeadline }}</h1>
-		</header>
-
-		<section class="app-body">
-			<!--<section class="archive-control">
-				<span>{{ remaining() }} of {{ todos.length }} remaining</span>
-				<p>[ <a href="" data-ng-click="archive()">Remove Completed Items</a> ]</p>
-			</section>-->
-
-			<!--<ul class="unstyled">
-				<li data-ng-repeat="todo in todos track by $index">
-					<input type="checkbox" data-ng-model="todo.done">
-					<span class="done-{{ todo.done }}">{{ todo.text }}</span>
-				</li>
-			</ul>-->
-
-			<!--<form data-ng-submit="addTodo()" class="todo-form">
-				<input type="text" data-ng-model="todoText" placeholder="Enter new ToDo item" />
-				<br />
-				<input type="submit" value="Add Task" />
-			</form>-->
-			<button ng-click="login()">Login with Spotify</button>
-
-			<input type="text" ng-model="searchartist" ng-change="searchArtist()" placeholder="Search for an artist">
-			<br></br>
-
-			<ul>
-				<li ng-repeat="artist in artists">
-					<a class="media" ng-href="{{artist.external_urls.spotify}}" target="_blank">
-						<img ng-src="{{artist.images[0].url}}" alt="">
-						<div class="media-details">
-							{{artist.name}}
-						</div>
-					</a>
-				</li>
+		<div class="header">
+			<ul class="nav nav-pills pull-right">
+				<li><a href="/spotify-duplicate-remover/index.html">Home</a></li>
 			</ul>
-		</section>
+			<h3 class="text-muted">{{ appTitle }}</h3>
+		</div>
+
+		<div class="default-content" ng-show="!loggedIn">
+			<div class="jumbotron">
+				<h1>Spotify Playlists Deduplicator</h1>
+				<p class="lead">Remove duplicated tracks from your playlists.</p>
+				<p><button class="btn btn-lg btn-success" ng-click="login()">Log in with Spotify</button></p>
+			</div>
+
+			<div class="row marketing">
+				<div class="col-sm-4 col-md-4 col-lg-4">
+					<h4>Find &amp; remove</h4>
+					<p>Dedup traverses the playlists in <strong>your Spotify library</strong>. Once Dedup finds duplicates you can remove them per-playlist basis.</p>
+				</div>
+				<div class="col-sm-4 col-md-4 col-lg-4">
+					<h4>Safe</h4>
+					<p>Dedup won't delete anything except for duplicates, and only in the playlists <strong>you</strong> want to apply the deletion.</p>
+				</div>
+				<div class="col-sm-4 col-md-4 col-lg-4">
+					<h4>Open Source</h4>
+					<p>This web app is open source, and uses the <a href="https://developer.spotify.com/web-api/">Spotify Web API</a> to manage user's playlists.</p>
+				</div>
+			</div>
+		</div>
+
+		<div class="default-content" ng-show="loggedIn">
+			<h3>Playlists</h3>
+
+			<table class="table table-striped">
+				<thead><tr>
+					<th>Edit</th>
+					<th>Playlist name</th>
+				</tr></thead>
+				<tbody><tr ng-repeat="playlist in playlists">
+					<td class="col-md-1">
+						<button class="btn" ng-click="(setPlaylistTracks(playlist.id))">
+							<span class="glyphicon glyphicon-wrench"></span>&nbsp;&nbsp;Fix
+						</button>
+					</td>
+					<td>{{ playlist.name }}</td>
+				</tr></tbody>
+			</table>
+		</div>
+
+		<div class="default-content" ng-show="loggedIn">
+			<h3>Tracks {{ tracks.length }}</h3>
+
+			<table class="table table-striped">
+				<thead><tr>
+					<th>Playlist name</th>
+				</tr></thead>
+				<tbody><tr ng-repeat="track in tracks">
+					<td>{{ track.track.name }}</td>
+				</tr></tbody>
+			</table>
+		</div>
+
 	</div>
 </body>
 </html>
