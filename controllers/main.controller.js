@@ -137,6 +137,21 @@ var app = angular
                     });
             };
 
+            $scope.fetchAllTracks = function (callback) {
+                var prom = [];
+                $scope.playlists.forEach(function (playlist, i) {
+                    prom.push($scope.fetchTracks(playlist.id), function(value) {
+                        $scope.tracks.push(value);
+                    });
+                });
+                $q.all(prom).then(function () {
+                    callback();
+                })
+            };
+
+            $scope.testFetchAllTracks = function () {
+                alert($scope.tracks.length);
+            };
 
         }]);
 
