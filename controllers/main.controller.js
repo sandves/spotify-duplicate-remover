@@ -1,5 +1,5 @@
 var app = angular
-    .module('spoti_dup', ['spotify'])
+    .module('spoti_dup', ['spotify', 'ngAnimate', 'ui.bootstrap'])
     .config(function (SpotifyProvider) {
         SpotifyProvider.setClientId(
             '48e5a9cd2b0a481c940b2bf1c3ef9ee5'
@@ -18,22 +18,15 @@ var app = angular
             $scope.currentPage = 0;
             $scope.pageSize = 20;
             $scope.playlists = [];
-            $scope.playlists_tracks = [];
-            $scope.playlists_tracks_temp = [];
+            $scope.duplicate_tracks = [];
             $scope.tracks = [];
             $scope.loggedIn = false;
             $scope.userName = "";
             $scope.token = "";
             $scope.currentUser = null;
-
-            $scope.numberOfTracks = function () {
-                var n = 0;
-                console.log($scope.playlists_tracks);
-                $scope.playlists_tracks.forEach(function (p) {
-                    //
-                });
-                return n;
-            };
+            $scope.duplicates = {};
+            $scope.processing = true;
+            $scope.processed_playlists = 10;
 
             $scope.numberOfPages = function () {
                 return Math.ceil($scope.playlists.length / $scope.pageSize);
@@ -45,38 +38,74 @@ var app = angular
                     $scope.token = data;
                     $scope.getCurrentUser(function (data) {
                         $scope.userName = data["display_name"];
-                        $scope.getUserOwnedPlaylists($scope.fetchAllPlaylistTracks);
+                        $scope.getUserOwnedPlaylists(null);
                     });
-
                 }, function () {
                     console.log('didn\'t log in');
                 });
             };
 
-            $scope.fetchAllPlaylistTracks = function (playlists) {
+            $scope.findDuplicates = function (playlist_id, tracks) {
 
-                var promise = $q(function(resolve, reject) {
-                    playlists.forEach(function (p) {
-                        $scope.fetchPlaylistTracks(p.id).then(function(tracks) {
-                            var deferred = $q.defer();
-                            deferred.resolve(tracks);
-                            return deferred.promise;
-                        }).then(function (data) {
-                            $scope.setPlaylistTracks(data).then(function (d) {
-                                $scope.playlists_tracks_temp.push(d);
-                            });
-                        });
+                var sorted = tracks.slice()
+                    .sort(function (a, b) {
+                        if (a.track == null || b.track == null)
+                            return 0;
+                        if (a.track.id < b.track.id)
+                            return -1;
+                        if (a.track.id > b.track.id)
+                            return 1;
+                        return 0;
+
                     });
-                    resolve($scope.playlists_tracks_temp);
-                });
 
-                promise.then(function(allTracks) {
-                    $scope.playlists_tracks = allTracks;
-                    console.log($scope.playlists_tracks);
+                var results = [];
+                for (var i = 0; i < tracks.length - 1; i++) {
+
+                    var a = sorted[i + 1];
+                    var b= sorted[i];
+
+                    if (a.track != null && b.track != null) {
+                        if (a.track.id == b.track.id) {
+                            // Cannot compare local tracks because the track ID is null
+                            if (!(a.is_local && b.is_local)) {
+                                results.push(b);
+                            }
+                        }
+                    }
+                }
+                return results;
+            };
+
+            $scope.getTracks = function (playlist_id) {
+                return $q(function (resolve, reject) {
+                    $scope.setTracks(playlist_id, null).then(function (tracks) {
+                        var duplicates = $scope.findDuplicates(playlist_id, tracks);
+                        $scope.duplicates[playlist_id] = duplicates;
+                        console.log(playlist_id);
+                        console.log(duplicates);
+                        resolve(duplicates);
+                    });
                 });
             };
 
-            $scope.fetchPlaylistTracks = function (playlist_id) {
+            $scope.getDuplicates = function (playlist_id) {
+                //$scope.tracks = $scope.duplicates[playlist_id];
+                $scope.getTracks(playlist_id).then(function (data) {
+                    $scope.duplicate_tracks = data;
+                });
+            };
+
+            $scope.setTracks = function (playlist_id, callback) {
+                $scope.tracks = [];
+                return $scope
+                    .fetchTracks(playlist_id)
+                    .then(function (data) {
+                        return $scope.setPlaylistTracks(data);
+                    });
+            };
+
+            $scope.fetchTracks = function (playlist_id) {
 
                 return $q(function (resolve, reject) {
                     Spotify.getPlaylistTracks($scope.currentUser["id"], playlist_id).then(
@@ -91,28 +120,24 @@ var app = angular
             $scope.setPlaylistTracks = function (tracks) {
 
                 return $q(function (resolve, reject) {
-                    $scope.tracks.push.apply($scope.tracks, tracks.items);
-
-                    if (tracks.next) {
-                        $scope.callSpotify(tracks.next, function(data) {
-                            $scope.setPlaylistTracks(data);
-                        });
-                    }
-
-                    resolve($scope.tracks);
-                });
-            };
-
-            $scope.callSpotify = function (url, callback) {
-                $http.get(url, {
-                    headers: {'Authorization': "Bearer " + $scope.token}
-                }).then(function (response) {
-                    callback(response.data);
-                }, function (response) {
-                    console.log(response.data || "Request failed");
-                    console.log(response.status);
-                })
-            };
+                    var t = [];
+                    t.push.apply(t, tracks.items);
+                    getAll(tracks);
+                    function getAll(songs) {
+                        if(songs.next) {
+                            $http.get(songs.next, {
+                                headers: {'Authorization': "Bearer " + $scope.token}
+                            }).then(function (response) {
+                                t.push.apply(t, response.data.items);
+                                getAll(response.data);
+                            }, function (error) {
+                                console.log(error.data || "Request failed");
+                            })
+                        }
+                        else {
+                            resolve(t);
+                        }
+                    };
 
             $scope.getCurrentUser = function (callback) {
                 $http.get("https://api.spotify.com/v1/me", {
@@ -133,24 +158,18 @@ var app = angular
                         $scope.playlists = data.items.filter(function (playlist) {
                             return playlist.owner.id === $scope.currentUser["id"];
                         });
-                        callback($scope.playlists);
+                        callback && callback($scope.playlists);
                     });
             };
 
-            $scope.fetchAllTracks = function (callback) {
+            $scope.processAllPlaylists = function () {
                 var prom = [];
-                $scope.playlists.forEach(function (playlist, i) {
-                    prom.push($scope.fetchTracks(playlist.id), function(value) {
-                        $scope.tracks.push(value);
-                    });
+                $scope.playlists.forEach(function (playlist) {
+                    prom.push($scope.getTracks(playlist.id));
                 });
                 $q.all(prom).then(function () {
-                    callback();
-                })
-            };
-
-            $scope.testFetchAllTracks = function () {
-                alert($scope.tracks.length);
+                    console.log($scope.duplicates);
+                });
             };
 
         }]);

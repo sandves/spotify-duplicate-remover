@@ -3,10 +3,13 @@
 <head>
 
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular-animate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.13.3/ui-bootstrap-tpls.js"></script>
     <script src="controllers/main.controller.js"></script>
     <script src="js/angular-spotify.min.js"></script>
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet"
+          href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
@@ -72,6 +75,17 @@
     <div class="default-content" data-ng-show="loggedIn">
         <h3>Playlists</h3>
 
+        <div data-ng-show="processing">
+            <small><em>Looking for duplicate tracks in your playlists ...</em></small>
+            <progressbar max="playlists.length" value="processed_playlists"><span
+                    style="color:white; white-space:nowrap;">{{processed_playlists}} / {{playlists.length}}</span>
+            </progressbar>
+        </div>
+
+        <button class="btn btn-primary btn-md" data-ng-click="processAllPlaylists()">
+            <span class="glyphicon glyphicon-wrench"></span>&nbsp;&nbsp;Fix all
+        </button>
+
         <table class="table table-striped">
             <thead>
             <tr>
@@ -82,7 +96,7 @@
             <tbody>
             <tr data-ng-repeat="playlist in playlists">
                 <td class="col-md-1">
-                    <button class="btn btn-primary btn-md" data-ng-click="(fetchTracksFromPlaylist(playlist.id))">
+                    <button class="btn btn-md" data-ng-click="(getDuplicates(playlist.id))">
                         <span class="glyphicon glyphicon-wrench"></span>&nbsp;&nbsp;Fix
                     </button>
                 </td>
@@ -92,18 +106,21 @@
         </table>
     </div>
 
-    <div class="default-content" data-ng-show="playlists_tracks.length > 0">
-        <h3>Tracks {{ playlists_tracks.length }}</h3>
+    <div class="default-content" data-ng-show="duplicate_tracks.length > 0">
+        <h3>Tracks {{ duplicate_tracks.length }}</h3>
 
         <table class="table table-striped">
             <thead>
             <tr>
-                <th>Playlist name</th>
+                <th>Song</th>
+                <th>Artist</th>
             </tr>
             </thead>
             <tbody>
-            <tr data-ng-repeat="track in playlists_tracks">
-                <td>{{ track }}</td>
+            <tr data-ng-repeat="track in duplicate_tracks">
+                <td>{{ track.track.name }}</td>
+                <td><span ng-repeat="artist in track.track.artists">{{$first ? '' : $last ? ' and ' : ', '}}{{artist.name}}</span>
+                </td>
             </tr>
             </tbody>
         </table>
