@@ -138,6 +138,8 @@ var app = angular
                             resolve(t);
                         }
                     };
+                });
+            };
 
             $scope.getCurrentUser = function (callback) {
                 $http.get("https://api.spotify.com/v1/me", {
