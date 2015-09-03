@@ -73,14 +73,15 @@
     </div>
 
     <div class="default-content" data-ng-show="loggedIn">
-        <h3>Playlists</h3>
 
-        <div data-ng-show="processing">
-            <small><em>Looking for duplicate tracks in your playlists ...</em></small>
+        <!--<div data-ng-show="processing">-->
+            <small><em>{{ status }}</em></small>
             <progressbar max="playlists.length" value="processed_playlists"><span
                     style="color:white; white-space:nowrap;">{{processed_playlists}} / {{playlists.length}}</span>
             </progressbar>
-        </div>
+        <!--</div>-->
+
+        <h3>Playlists</h3>
 
         <button data-ng-click="cleanAll()" data-ng-show="displayCleanAllButton()" type="button" class="btn btn-primary btn-md">Clean all</button>
 

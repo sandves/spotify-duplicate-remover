@@ -15,33 +15,22 @@ var app = angular
     .controller('MainController', ['$scope', '$http', '$q', 'Spotify',
         function ($scope, $http, $q, Spotify) {
 
-            $scope.currentPage = 0;
-            $scope.pageSize = 20;
             $scope.playlists = [];
-            $scope.duplicate_tracks = [];
-            $scope.tracks = [];
             $scope.loggedIn = false;
-            $scope.userName = "";
             $scope.token = "";
             $scope.currentUser = null;
             $scope.duplicates = {};
             $scope.processing = false;
             $scope.processed_playlists = 0;
-            $scope.user = {};
-            $scope.test = {};
             $scope.successfullyCleaned = [];
-
-            $scope.numberOfPages = function () {
-                return Math.ceil($scope.playlists.length / $scope.pageSize);
-            };
+            $scope.status = "";
 
             $scope.login = function () {
                 Spotify.login().then(function (data) {
                     $scope.loggedIn = true;
                     $scope.token = data;
                     $scope.getCurrentUser(function (data) {
-                        $scope.userName = data["display_name"];
-                        $scope.user = data;
+                        //$scope.userName = data["display_name"];
                         $scope.getUserOwnedPlaylists($scope.processAllPlaylists);
                     });
                 }, function () {
@@ -60,7 +49,6 @@ var app = angular
                         if (a.track.id > b.track.id)
                             return 1;
                         return 0;
-
                     });
 
                 var results = [];
@@ -78,6 +66,18 @@ var app = angular
                         }
                     }
                 }
+
+                // We need to know the position of the track in the playlist in
+                // order to delete a specific occurrence of a track, and not all
+                // tracks with a given id.
+                angular.forEach(tracks, function(track, index) {
+                    angular.forEach(results, function(d, i) {
+                        if (JSON.stringify(track) === JSON.stringify(d)) {
+                            d.track.position = index;
+                        }
+                    });
+                });
+
                 return results;
             };
 
@@ -95,9 +95,6 @@ var app = angular
             };
 
             $scope.getDuplicates = function (playlist_id) {
-                /*$scope.getTracks(playlist_id).then(function (data) {
-                    $scope.duplicate_tracks = data;
-                });*/
                 return $scope.duplicates[playlist_id];
             };
 
@@ -113,7 +110,6 @@ var app = angular
             };
 
             $scope.setTracks = function (playlist_id, callback) {
-                $scope.tracks = [];
                 return $scope
                     .fetchTracks(playlist_id)
                     .then(function (data) {
@@ -164,20 +160,35 @@ var app = angular
                     ids.push(track.track.id);
                 });
 
-                var user_id = $scope.user["id"];
+                var user_id = $scope.currentUser["id"];
 
-                Spotify
-                    .removePlaylistTracks(user_id, playlist_id, ids)
-                    .then(function (data) {
-                        console.log('tracks removed from playlist');
-                        delete $scope.duplicates[playlist_id];
-                        $scope.successfullyCleaned.push(playlist_id);
-                    });
+                var data = {tracks: []};
+                angular.forEach(tracks, function(value, key) {
+                    data.tracks.push({uri: value.track.uri, positions: [value.track.position]});
+                });
+
+                console.log("Attempt to delete tracks");
+                console.log(data);
+
+                // Instead of using the "removePlaylistTracks" function in the
+                // angular-spotify service, we implement our own http request for
+                // this case. See issue #1 for more details.
+                var url = "https://api.spotify.com/v1/users/" + user_id + "/playlists/" + playlist_id + "/tracks";
+                $http.delete(url, {
+                    data: data,
+                    headers: {'Authorization': "Bearer " + $scope.token}
+                }).then(function (response) {
+                    console.log('tracks removed from playlist');
+                    delete $scope.duplicates[playlist_id];
+                    $scope.successfullyCleaned.push(playlist_id);
+                }, function (reject) {
+                    console.log(reject.data);
+                })
             };
 
             $scope.cleanAll = function() {
-                angular.forEach($scope.duplicates, function(key, value) {
-                    $scope.clean(value);
+                angular.forEach($scope.duplicates, function(value, key) {
+                    $scope.clean(key);
                 });
             };
 
@@ -204,9 +215,18 @@ var app = angular
                     });
             };
 
+            $scope.numberOfDuplicates = function() {
+                var n = 0;
+                angular.forEach($scope.duplicates, function(value, key) {
+                   n += value.length;
+                });
+                return n;
+            };
+
             $scope.processAllPlaylists = function (playlists) {
 
                 $scope.processing = true;
+                $scope.status = "Looking for duplicate tracks in your playlists..."
                 $scope.processed_playlists = 0;
 
                 var prom = [];
@@ -215,7 +235,8 @@ var app = angular
                 });
                 $q.all(prom).then(function () {
                     $scope.processing = false;
-                    console.log("Done processing playlists");
+                    var n = $scope.numberOfDuplicates();
+                    $scope.status = "Done processing playlists. You have " + n + " duplicate tracks in your playlists."
                 });
             };
 
