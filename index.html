@@ -82,48 +82,18 @@
             </progressbar>
         </div>
 
-        <button class="btn btn-primary btn-md" data-ng-click="processAllPlaylists()">
-            <span class="glyphicon glyphicon-wrench"></span>&nbsp;&nbsp;Fix all
-        </button>
+        <button data-ng-click="cleanAll()" data-ng-show="displayCleanAllButton()" type="button" class="btn btn-primary btn-md">Clean all</button>
 
-        <table class="table table-striped">
-            <thead>
-            <tr>
-                <th>Edit</th>
-                <th>Playlist name</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr data-ng-repeat="playlist in playlists">
-                <td class="col-md-1">
-                    <button class="btn btn-md" data-ng-click="(getDuplicates(playlist.id))">
-                        <span class="glyphicon glyphicon-wrench"></span>&nbsp;&nbsp;Fix
-                    </button>
-                </td>
-                <td>{{ playlist.name }}</td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <div class="default-content" data-ng-show="duplicate_tracks.length > 0">
-        <h3>Tracks {{ duplicate_tracks.length }}</h3>
-
-        <table class="table table-striped">
-            <thead>
-            <tr>
-                <th>Song</th>
-                <th>Artist</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr data-ng-repeat="track in duplicate_tracks">
-                <td>{{ track.track.name }}</td>
-                <td><span ng-repeat="artist in track.track.artists">{{$first ? '' : $last ? ' and ' : ', '}}{{artist.name}}</span>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+        <ul>
+            <li data-ng-repeat="playlist in playlists">
+                {{ playlist.name }}&nbsp;<button data-ng-click="clean(playlist.id)" data-ng-show="getDuplicates(playlist.id).length > 0" type="button" class="btn btn-primary btn-xs">Clean <span class="badge">{{ getDuplicates(playlist.id).length }}</span></button><span class="label label-success" data-ng-show="displaySuccessLabel(playlist.id)">Playlist successfully cleaned</span>
+                <ul>
+                    <li data-ng-repeat="duplicate in getDuplicates(playlist.id)">
+                        <span class="badge">Duplicate</span>&nbsp;&nbsp;<b>{{ duplicate.track.name }}</b>
+                    </li>
+                </ul>
+            </li>
+        </ul>
     </div>
 
 </div>
