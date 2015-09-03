@@ -173,7 +173,7 @@ var app = angular
                         delete $scope.duplicates[playlist_id];
                         $scope.successfullyCleaned.push(playlist_id);
                     });
-            }
+            };
 
             $scope.cleanAll = function() {
                 angular.forEach($scope.duplicates, function(key, value) {
