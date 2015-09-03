@@ -61,13 +61,20 @@ var app = angular
                 for (var i = 0; i < tracks.length - 1; i++) {
 
                     var a = sorted[i + 1];
-                    var b= sorted[i];
+                    var b = sorted[i];
 
                     if (a.track != null && b.track != null) {
                         if (a.track.id == b.track.id) {
                             // Cannot compare local tracks because the track ID is null
-                            if (!(a.is_local && b.is_local)) {
-                                results.push(b);
+                            if (!(a.is_local || b.is_local)) {
+                                // Do a comparison on time so that we keep the oldest
+                                // instance of the track in the playlist.
+                                var date_a = new Date(a.added_at);
+                                var date_b = new Date(b.added_at);
+                                if (date_a.getTime() > date_b.getTime())
+                                    results.push(a);
+                                else
+                                    results.push(b);
                             }
                         }
                     }
@@ -240,6 +247,7 @@ var app = angular
                     prom.push($scope.getTracks(playlist.id));
                 });
                 $q.all(prom).then(function () {
+
                     $scope.processing = false;
                     $scope.ready = true;
                     var n = $scope.numberOfDuplicates();
