@@ -5,7 +5,7 @@ var app = angular
             '48e5a9cd2b0a481c940b2bf1c3ef9ee5'
         );
         SpotifyProvider.setRedirectUri(
-            'http://localhost:63342/spotify-duplicate-remover/callback.html'
+            'http://mehre.no/callback.html'
         );
 
         SpotifyProvider.setScope(
