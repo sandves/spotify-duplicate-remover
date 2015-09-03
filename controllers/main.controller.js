@@ -226,7 +226,7 @@ var app = angular
             $scope.processAllPlaylists = function (playlists) {
 
                 $scope.processing = true;
-                $scope.status = "Looking for duplicate tracks in your playlists..."
+                $scope.status = "Looking for duplicate tracks in your playlists...";
                 $scope.processed_playlists = 0;
 
                 var prom = [];
@@ -236,7 +236,7 @@ var app = angular
                 $q.all(prom).then(function () {
                     $scope.processing = false;
                     var n = $scope.numberOfDuplicates();
-                    $scope.status = "Done processing playlists. You have " + n + " duplicate tracks in your playlists."
+                    $scope.status = "Done processing playlists. You have " + n + " duplicate tracks in your playlists.";
                 });
             };
 
