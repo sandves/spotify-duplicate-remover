@@ -32,9 +32,9 @@
 <div class="container" data-ng-controller="MainController">
     <div class="header">
         <ul class="nav nav-pills pull-right">
-            <li><a href="/spotify-duplicate-remover/index.html">Home</a></li>
+            <li><a href="/index.html">Home</a></li>
         </ul>
-        <h3 class="text-muted">{{ appTitle }}</h3>
+        <h3 class="text-muted">Spotidup</h3>
     </div>
 
     <div class="default-content" data-ng-show="!loggedIn">
@@ -53,13 +53,13 @@
             <div class="col-sm-4 col-md-4 col-lg-4">
                 <h4>Find &amp; remove</h4>
 
-                <p>Dedup traverses the playlists in <strong>your Spotify library</strong>. Once
-                    Dedup finds duplicates you can remove them per-playlist basis.</p>
+                <p>Spotidup traverses the playlists in <strong>your Spotify library</strong>. Once
+                    Spotidup finds duplicates you can remove them per-playlist basis.</p>
             </div>
             <div class="col-sm-4 col-md-4 col-lg-4">
                 <h4>Safe</h4>
 
-                <p>Dedup won't delete anything except for duplicates, and only in the playlists
+                <p>Spotidup won't delete anything except for duplicates, and only in the playlists
                     <strong>you</strong> want to apply the deletion.</p>
             </div>
             <div class="col-sm-4 col-md-4 col-lg-4">
@@ -74,27 +74,38 @@
 
     <div class="default-content" data-ng-show="loggedIn">
 
-        <!--<div data-ng-show="processing">-->
-            <small><em>{{ status }}</em></small>
-            <progressbar max="playlists.length" value="processed_playlists"><span
-                    style="color:white; white-space:nowrap;">{{processed_playlists}} / {{playlists.length}}</span>
-            </progressbar>
-        <!--</div>-->
+        <small><em>{{ status }}</em></small>
+        <progressbar max="playlists.length" value="processed_playlists"><span
+                style="color:white; white-space:nowrap;">{{processed_playlists}} / {{playlists.length}}</span>
+        </progressbar>
 
-        <h3>Playlists</h3>
+        <div data-ng-show="ready">
+            <h3>Playlists</h3>
 
-        <button data-ng-click="cleanAll()" data-ng-show="displayCleanAllButton()" type="button" class="btn btn-primary btn-md">Clean all</button>
+            <button data-ng-click="cleanAll()" data-ng-show="displayCleanAllButton()" type="button"
+                    class="btn btn-primary btn-md">Clean all
+            </button>
+            <br>
+            <br>
 
-        <ul>
-            <li data-ng-repeat="playlist in playlists">
-                {{ playlist.name }}&nbsp;<button data-ng-click="clean(playlist.id)" data-ng-show="getDuplicates(playlist.id).length > 0" type="button" class="btn btn-primary btn-xs">Clean <span class="badge">{{ getDuplicates(playlist.id).length }}</span></button><span class="label label-success" data-ng-show="displaySuccessLabel(playlist.id)">Playlist successfully cleaned</span>
-                <ul>
-                    <li data-ng-repeat="duplicate in getDuplicates(playlist.id)">
-                        <span class="badge">Duplicate</span>&nbsp;&nbsp;<b>{{ duplicate.track.name }}</b>
-                    </li>
-                </ul>
-            </li>
-        </ul>
+            <ul>
+                <li data-ng-repeat="playlist in playlists">
+                    {{ playlist.name }}&nbsp;
+                    <button data-ng-click="clean(playlist.id)"
+                            data-ng-show="getDuplicates(playlist.id).length > 0" type="button"
+                            class="btn btn-primary btn-xs">Clean <span class="badge">{{ getDuplicates(playlist.id).length }}</span>
+                    </button>
+                    <span class="label label-success"
+                          data-ng-show="displaySuccessLabel(playlist.id)">Playlist successfully cleaned</span>
+                    <ul>
+                        <li data-ng-repeat="duplicate in getDuplicates(playlist.id)">
+                            <span class="badge">Duplicate</span>&nbsp;&nbsp;<b>{{
+                            duplicate.track.name }}</b>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
     </div>
 
 </div>

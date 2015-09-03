@@ -4,8 +4,12 @@ var app = angular
         SpotifyProvider.setClientId(
             '48e5a9cd2b0a481c940b2bf1c3ef9ee5'
         );
+        /*SpotifyProvider.setRedirectUri(
+            'http://www.mehre.no/callback.html'
+        );*/
+
         SpotifyProvider.setRedirectUri(
-            'http://mehre.no/callback.html'
+            'http://localhost:63342/spotify-duplicate-remover/callback.html'
         );
 
         SpotifyProvider.setScope(
@@ -24,6 +28,7 @@ var app = angular
             $scope.processed_playlists = 0;
             $scope.successfullyCleaned = [];
             $scope.status = "";
+            $scope.ready = false;
 
             $scope.login = function () {
                 Spotify.login().then(function (data) {
@@ -33,8 +38,9 @@ var app = angular
                         //$scope.userName = data["display_name"];
                         $scope.getUserOwnedPlaylists($scope.processAllPlaylists);
                     });
-                }, function () {
+                }, function (error) {
                     console.log('didn\'t log in');
+                    console.log(error.data);
                 });
             };
 
@@ -235,8 +241,12 @@ var app = angular
                 });
                 $q.all(prom).then(function () {
                     $scope.processing = false;
+                    $scope.ready = true;
                     var n = $scope.numberOfDuplicates();
-                    $scope.status = "Done processing playlists. You have " + n + " duplicate tracks in your playlists.";
+                    if (n == 1)
+                        $scope.status = "Done processing. You have " + n + " duplicate track in your playlists.";
+                    else
+                        $scope.status = "Done processing. You have " + n + " duplicate tracks in your playlists.";
                 });
             };
 
