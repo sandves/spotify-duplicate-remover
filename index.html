@@ -82,11 +82,13 @@
         <div data-ng-show="ready">
             <h3>Playlists</h3>
 
-            <button data-ng-click="cleanAll()" data-ng-show="displayCleanAllButton()" type="button"
-                    class="btn btn-primary btn-md">Clean all
-            </button>
-            <br>
-            <br>
+            <div data-ng-show="displayCleanAllButton()">
+                <button data-ng-click="cleanAll()" type="button"
+                        class="btn btn-primary btn-md">Clean all
+                </button>
+                <br>
+                <br>
+            </div>
 
             <ul>
                 <li data-ng-repeat="playlist in playlists">

@@ -4,13 +4,13 @@ var app = angular
         SpotifyProvider.setClientId(
             '48e5a9cd2b0a481c940b2bf1c3ef9ee5'
         );
-        /*SpotifyProvider.setRedirectUri(
-            'http://www.mehre.no/callback.html'
-        );*/
-
         SpotifyProvider.setRedirectUri(
-            'http://localhost:63342/spotify-duplicate-remover/callback.html'
+            'http://www.mehre.no/callback.html'
         );
+
+        /*SpotifyProvider.setRedirectUri(
+            'http://localhost:63342/spotify-duplicate-remover/callback.html'
+        );*/
 
         SpotifyProvider.setScope(
             'playlist-read-private playlist-modify-private playlist-modify-public'
