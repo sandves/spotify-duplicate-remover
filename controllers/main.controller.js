@@ -112,7 +112,7 @@ var app = angular
             };
 
             $scope.displayCleanAllButton = function() {
-                return Object.keys($scope.duplicates).length > 1;
+                return Object.keys($scope.duplicates).length > 0;
             };
 
             $scope.displaySuccessLabel = function(playlist_id) {
@@ -247,7 +247,7 @@ var app = angular
                     prom.push($scope.getTracks(playlist.id));
                 });
                 $q.all(prom).then(function () {
-
+                    console.log($scope.duplicates);
                     $scope.processing = false;
                     $scope.ready = true;
                     var n = $scope.numberOfDuplicates();
