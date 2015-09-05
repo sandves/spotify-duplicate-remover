@@ -9,15 +9,15 @@ var app = angular
         );
 
         /*SpotifyProvider.setRedirectUri(
-            'http://localhost:63342/spotify-duplicate-remover/callback.html'
+           'http://localhost:63342/spotify-duplicate-remover/callback.html'
         );*/
 
         SpotifyProvider.setScope(
             'playlist-read-private playlist-modify-private playlist-modify-public'
         );
     })
-    .controller('MainController', ['$scope', '$http', '$q', 'Spotify',
-        function ($scope, $http, $q, Spotify) {
+    .controller('MainController', ['$scope', '$http', '$q', '$sce', 'Spotify',
+        function ($scope, $http, $q, $sce, Spotify) {
 
             $scope.playlists = [];
             $scope.loggedIn = false;
@@ -29,6 +29,10 @@ var app = angular
             $scope.successfullyCleaned = [];
             $scope.status = "";
             $scope.ready = false;
+
+            $scope.trustSnippet = function() {
+                return $sce.trustAsHtml($scope.status);
+            };
 
             $scope.login = function () {
                 Spotify.login().then(function (data) {
@@ -239,7 +243,7 @@ var app = angular
             $scope.processAllPlaylists = function (playlists) {
 
                 $scope.processing = true;
-                $scope.status = "Looking for duplicate tracks in your playlists...";
+                $scope.status = "<small><em>Looking for duplicate tracks in your playlists...</em></small>";
                 $scope.processed_playlists = 0;
 
                 var prom = [];
@@ -252,10 +256,25 @@ var app = angular
                     $scope.ready = true;
                     var n = $scope.numberOfDuplicates();
                     if (n == 1)
-                        $scope.status = "Done processing. You have " + n + " duplicate track in your playlists.";
-                    else
-                        $scope.status = "Done processing. You have " + n + " duplicate tracks in your playlists.";
+                        $scope.status = "<small><em>Done processing. You have " + n + " duplicate track in your playlists. Look for the </em><span class=\"badge\">Duplicate</span><em> label.</em></small>";
+                    else if (n > 1)
+                        $scope.status = "<small><em>Done processing. You have " + n + " duplicate tracks in your playlists. Look for </em><span class=\"badge\">Duplicate</span><em> labels.</em></small>";
+                    else if (n == 0)
+                        $scope.status = "<small><em>Congratulations, you have no duplicate tracks in your playlists!</em></small>";
                 });
+            };
+
+            $scope.select_css = function(playlist_id) {
+                console.log(playlist_id);
+                console.log($scope.duplicates[playlist_id]);
+
+                var duplicates = $scope.getDuplicates(playlist_id);
+                if (typeof duplicates !== 'undefined') {
+                    return 'danger';
+                }
+                else {
+                    return 'success';
+                }
             };
 
         }]);
