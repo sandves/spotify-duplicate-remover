@@ -8,11 +8,16 @@
     <script src="controllers/main.controller.js"></script>
     <script src="js/angular-spotify.min.js"></script>
 
-    <link rel="stylesheet"
-          href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 
     <meta charset="utf-8">
     <title>Spotify Deduplicator</title>
@@ -44,7 +49,7 @@
             <p class="lead">Remove duplicate tracks from your Spotify playlists.</p>
 
             <p>
-                <button class="btn btn-lg btn-success" data-ng-click="login()">Log in with Spotify
+                <button type="submit" class="btn btn-lg btn-success" my-enter="login()" data-ng-click="login()">Log in with Spotify
                 </button>
             </p>
         </div>
@@ -82,7 +87,6 @@
         </progressbar>
 
         <div data-ng-show="ready">
-        <h3>Playlists</h3>
 
         <div data-ng-show="displayCleanAllButton()">
             <button data-ng-click="cleanAll()" type="button" class="btn btn-primary btn-md">
@@ -93,7 +97,8 @@
         </div>
 
         <ul class="list-group">
-            <li class="list-group-item list-group-item-{{select_css(playlist.id)}}"
+            <li class="list-group-item list-group-item-info"><h4 class="list-group-item-heading">Playlists</h4></li>
+            <li class="list-group-item {{select_css(playlist.id)}}"
                 data-ng-repeat="playlist in playlists">
                 {{ playlist.name }}&nbsp;
                 <button data-ng-click="clean(playlist.id)"
