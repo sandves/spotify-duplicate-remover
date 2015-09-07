@@ -52,7 +52,7 @@ var app = angular
 
                 var sorted = tracks.slice()
                     .sort(function (a, b) {
-                        if (a.track == null || b.track == null)
+                        if (a.track === null || b.track === null)
                             return 0;
                         if (a.track.id < b.track.id)
                             return -1;
@@ -67,7 +67,7 @@ var app = angular
                     var a = sorted[i + 1];
                     var b = sorted[i];
 
-                    if (a.track != null && b.track != null) {
+                    if (a.track !== null && b.track !== null) {
                         if (a.track.id == b.track.id) {
                             // Cannot compare local tracks because the track ID is null
                             if (!(a.is_local || b.is_local)) {
@@ -77,14 +77,19 @@ var app = angular
                                 var date_b = new Date(b.added_at);
                                 if (date_a.getTime() > date_b.getTime())
                                     results.push(a);
-                                else
+                                else if (date_a.getTime() < date_b.getTime())
                                     results.push(b);
+                                else
+                                    results.push(a);
                             }
                         }
                     }
                 }
 
-                // We need to know the position of the track in the playlist in
+                if(results.length == 1)
+                    console.log(tracks);
+
+                // We need to know the positions of the tracks in the playlist in
                 // order to delete a specific occurrence of a track, and not all
                 // tracks with a given id.
                 angular.forEach(tracks, function(track, index) {
@@ -142,7 +147,7 @@ var app = angular
                             resolve(data);
                         }, function (reason) {
                             reject(reason);
-                        })
+                        });
                 });
             };
 
@@ -161,12 +166,12 @@ var app = angular
                                 getAll(response.data);
                             }, function (error) {
                                 console.log(error.data || "Request failed");
-                            })
+                            });
                         }
                         else {
                             resolve(t);
                         }
-                    };
+                    }
                 });
             };
 
@@ -199,8 +204,9 @@ var app = angular
                     delete $scope.duplicates[playlist_id];
                     $scope.successfullyCleaned.push(playlist_id);
                 }, function (reject) {
-                    console.log(reject.data);
-                })
+                    console.log(reject.data.error.message);
+                    alert(reject.data.error.message);
+                });
             };
 
             $scope.cleanAll = function() {
@@ -219,16 +225,19 @@ var app = angular
                 }, function (response) {
                     console.log(response.data || "Request failed");
                     console.log(response.status);
-                })
+                });
             };
-
+    
             $scope.getUserOwnedPlaylists = function (callback) {
                 Spotify.getUserPlaylists(
                     $scope.currentUser["id"], {"limit": 50}).then(function (data) {
                         $scope.playlists = data.items.filter(function (playlist) {
                             return playlist.owner.id === $scope.currentUser["id"];
                         });
-                        callback && callback($scope.playlists);
+
+                        if (typeof callback === 'function') {
+                            callback($scope.playlists);
+                        }
                     });
             };
 
@@ -259,15 +268,12 @@ var app = angular
                         $scope.status = "<small><em>Done processing. You have " + n + " duplicate track in your playlists. Look for the </em><span class=\"badge\">Duplicate</span><em> label.</em></small>";
                     else if (n > 1)
                         $scope.status = "<small><em>Done processing. You have " + n + " duplicate tracks in your playlists. Look for </em><span class=\"badge\">Duplicate</span><em> labels.</em></small>";
-                    else if (n == 0)
+                    else if (n === 0)
                         $scope.status = "<small><em>Congratulations, you have no duplicate tracks in your playlists!</em></small>";
                 });
             };
 
             $scope.select_css = function(playlist_id) {
-                console.log(playlist_id);
-                console.log($scope.duplicates[playlist_id]);
-
                 var duplicates = $scope.getDuplicates(playlist_id);
                 if (typeof duplicates !== 'undefined') {
                     return 'list-group-item-danger';
@@ -283,5 +289,5 @@ app.filter('startFrom', function () {
     return function (input, start) {
         start = +start; //parse to int
         return input.slice(start);
-    }
+    };
 });
