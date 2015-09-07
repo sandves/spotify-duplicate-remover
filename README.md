@@ -8,7 +8,7 @@
 
 ## Motivation
 
-The main motivation for this project was to learn more about modern web technologies such as HTML5, CSS3, and AngularJS. I knew nothing about Javascript before I started with AngularJS. I also wanted to develop something useful instead of just fiddeling around. You can read more about the application in the next section.
+The main motivation for this project was to learn more about modern web technologies such as HTML5, CSS3, and AngularJS. I knew nothing about Javascript before I started with AngularJS. I also wanted to develop something useful instead of just fiddling around. You can read more about the application in the next section.
 
 ## About
 
