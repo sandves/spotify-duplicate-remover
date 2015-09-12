@@ -4,13 +4,20 @@ var app = angular
         SpotifyProvider.setClientId(
             '48e5a9cd2b0a481c940b2bf1c3ef9ee5'
         );
-        /*SpotifyProvider.setRedirectUri(
-            'http://www.mehre.no/callback.html'
-        );*/
 
-        SpotifyProvider.setRedirectUri(
-           'http://localhost:63342/spotify-duplicate-remover/callback.html'
-        );
+        var hostname = window.location.host;
+        var callbackUrl = null;
+        if (hostname.indexOf('www.') === 0) {
+            callbackUrl = 'http://www.mehre.no/callback.html';
+        }
+        else if (hostname.indexOf('localhost') > -1) {
+            callbackUrl = 'http://localhost:63342/spotify-duplicate-remover/callback.html'
+        }
+        else {
+            callbackUrl = 'http://mehre.no/callback.html';
+        }
+
+        SpotifyProvider.setRedirectUri(callbackUrl);
 
         SpotifyProvider.setScope(
             'playlist-read-private playlist-modify-private playlist-modify-public'
