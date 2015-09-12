@@ -27,6 +27,7 @@ var app = angular
             $scope.processing = false;
             $scope.processed_playlists = 0;
             $scope.successfullyCleaned = [];
+            $scope.unableToClean = [];
             $scope.status = "";
             $scope.ready = false;
 
@@ -131,6 +132,13 @@ var app = angular
                     return true;
             };
 
+            $scope.displayErrorLabel = function(playlist_id) {
+                if ($scope.unableToClean.indexOf(playlist_id) == -1)
+                    return false;
+                else
+                    return true;
+            };
+
             $scope.setTracks = function (playlist_id, callback) {
                 return $scope
                     .fetchTracks(playlist_id)
@@ -205,7 +213,7 @@ var app = angular
                     $scope.successfullyCleaned.push(playlist_id);
                 }, function (reject) {
                     console.log(reject.data.error.message);
-                    alert(reject.data.error.message);
+                    $scope.unableToClean.push(playlist_id);
                 });
             };
 

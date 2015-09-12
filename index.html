@@ -103,10 +103,13 @@
                 {{ playlist.name }}&nbsp;
                 <button data-ng-click="clean(playlist.id)"
                         data-ng-show="getDuplicates(playlist.id).length > 0" type="button"
+						data-ng-disabled="displayErrorLabel(playlist.id)"
                         class="btn btn-primary btn-xs">Clean <span class="badge">{{ getDuplicates(playlist.id).length }}</span>
                 </button>
                     <span class="label label-success"
                           data-ng-show="displaySuccessLabel(playlist.id)">Playlist successfully cleaned</span>
+					<span class="label label-danger"
+						  data-ng-show="displayErrorLabel(playlist.id)">Unable to clean playlist</span>
                 <ul>
                     <li data-ng-repeat="duplicate in getDuplicates(playlist.id) track by $index">
                         <span class="badge">Duplicate</span>&nbsp;&nbsp;<b>{{
