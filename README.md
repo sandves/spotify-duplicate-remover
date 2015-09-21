@@ -16,7 +16,9 @@ If you add a track to one of your Spotify playlists and the track already exists
 
 Spotidup lets you log in to your Spotify account and inspect your playlists for duplicate tracks. If there are any, you can either choose to remove all, or remove them per-playlist basis. The instance of the track that was added to the playlist first will be kept, all other instances will be removed.
 
-### Technologies
+A demo of the application can be found at http://mehre.no.
+
+## Technologies
 
 Spotidup utilizes [AngularJS](https://angularjs.org) together with the [Spotify Web API](https://developer.spotify.com/web-api/) to provide you with a fast and responsive SPA (Single Page Application) that interacts with your Spotify library. The UI is powered by [Bootstrap](http://getbootstrap.com) to give it a nice look and feel even on mobile devices.
 
