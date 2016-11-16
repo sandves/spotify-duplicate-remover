@@ -8,13 +8,13 @@ var app = angular
         var hostname = window.location.host;
         var callbackUrl = null;
         if (hostname.indexOf('www.') === 0) {
-            callbackUrl = 'http://www.mehre.no/callback.html';
+            callbackUrl = 'http://spotidup.azurewebsites.net/callback.html';
         }
         else if (hostname.indexOf('localhost') > -1) {
             callbackUrl = 'http://localhost:63342/spotify-duplicate-remover/callback.html'
         }
         else {
-            callbackUrl = 'http://mehre.no/callback.html';
+            callbackUrl = 'http://spotidup.azurewebsites.net/callback.html';
         }
 
         SpotifyProvider.setRedirectUri(callbackUrl);
