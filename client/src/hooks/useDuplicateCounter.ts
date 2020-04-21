@@ -1,5 +1,5 @@
-import { Track } from '../models/track';
 import { useEffect, useState } from 'react';
+import { Track } from '../spotify';
 
 export type Duplicates = {
   tracksCount: { [id: string]: number };

@@ -22,3 +22,13 @@ export interface Artist {
 export interface LinkedFrom {
   uri: string;
 }
+
+export interface DeleteTracksRequest {
+  playlistId: string;
+  tracks: DeleteTrackRequest[];
+}
+
+interface DeleteTrackRequest {
+  uri: string;
+  positions: Number[];
+}

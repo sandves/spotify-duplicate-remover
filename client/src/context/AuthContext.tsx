@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios, { AxiosResponse } from 'axios';
-import { User } from '../models/user';
+import { User } from '../spotify';
 
 export type AuthData = {
   user: User;
@@ -20,7 +20,7 @@ const redirectUri = 'http://localhost:3000';
 const scopes = [
   'playlist-read-private',
   'playlist-modify-private',
-  'playlist-modify-public'
+  'playlist-modify-public',
 ];
 
 const AuthProvider: React.FC<any> = (props: any) => {
@@ -35,7 +35,7 @@ const AuthProvider: React.FC<any> = (props: any) => {
     const hash = window.location.hash
       .substring(1)
       .split('&')
-      .reduce(function(initial: { [id: string]: string }, item: string) {
+      .reduce(function (initial: { [id: string]: string }, item: string) {
         if (item) {
           var parts = item.split('=');
           initial[parts[0]] = decodeURIComponent(parts[1]);
@@ -60,10 +60,10 @@ const AuthProvider: React.FC<any> = (props: any) => {
   axios.defaults.headers.common['Authorization'] = 'Bearer ' + token;
 
   axios.interceptors.response.use(
-    function(response: AxiosResponse<any>) {
+    function (response: AxiosResponse<any>) {
       return response;
     },
-    function(error) {
+    function (error) {
       console.log(error);
       if (error.response.status === 401) {
         console.log('logging out');
@@ -85,7 +85,7 @@ const AuthProvider: React.FC<any> = (props: any) => {
 
   const data: AuthData = {
     user: user,
-    token: token as string
+    token: token as string,
   };
 
   return <AuthContext.Provider value={{ data, logout }} {...props} />;
