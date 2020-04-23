@@ -12,25 +12,15 @@ import {
   Badge,
   Tooltip,
   Button,
-  Dialog,
-  DialogTitle,
-  DialogActions,
-  DialogContent,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  ListItemSecondaryAction,
 } from '@material-ui/core';
 import { useState } from 'react';
 import DeleteSweepIcon from '@material-ui/icons/DeleteSweep';
 import QueueMusicIcon from '@material-ui/icons/QueueMusic';
-import MusicNoteIcon from '@material-ui/icons/MusicNote';
-import DeleteIcon from '@material-ui/icons/Delete';
 import Alert from '@material-ui/lab/Alert';
 import { Duplicates } from '../../hooks/useDuplicateCounter';
 import { Playlist, Track, DeleteTracksRequest } from '../../spotify';
 import { useSpotify } from '../../context/SpotifyContext';
+import DuplicatesDialog from './DuplicatesDialog';
 
 const getTrackPositions = (trackId: string, tracks: Track[]): Number[] => {
   const positions = [];
@@ -110,7 +100,38 @@ const PlaylistCard: React.FC<PlaylistCardProps> = ({
       .deleteTracks(deleteRequest)
       .then((_) => setCleaned(true))
       .catch((error) => {
-        setError(error);
+        setError(error.message);
+      });
+  };
+
+  const onDeleteTrackClick = (trackId: string) => {
+    if (!duplicates) return;
+    if (!tracks || tracks.length === 0) return;
+
+    const deleteRequest: DeleteTracksRequest = {
+      playlistId: playlist.id,
+      tracks: [],
+    };
+
+    const positions = getTrackPositions(trackId, tracks);
+    const track = tracks.find((track) => track.id === trackId);
+
+    if (!track || positions.length < 2) {
+      return;
+    }
+
+    positions.pop();
+    deleteRequest.tracks.push({
+      uri: track.linked_from ? track.linked_from.uri : track.uri,
+      positions: positions,
+    });
+
+    api
+      .deleteTracks(deleteRequest)
+      .then()
+      .catch((error) => {
+        setDialogOpen(false);
+        setError(error.message);
       });
   };
 
@@ -171,49 +192,13 @@ const PlaylistCard: React.FC<PlaylistCardProps> = ({
           </Button>
         </CardActions>
       </Card>
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
-        <DialogTitle id="simple-dialog-title">Duplicate tracks</DialogTitle>
-        <DialogContent>
-          <div style={{ marginLeft: '-12px' }}>
-            <List dense={false}>
-              {Object.keys(duplicates.tracksCount).map((key) => {
-                if (duplicates.tracksCount[key] > 1) {
-                  return (
-                    <ListItem key={key}>
-                      <ListItemIcon>
-                        <MusicNoteIcon />
-                      </ListItemIcon>
-                      <div style={{ marginRight: '24px' }}>
-                        <ListItemText
-                          primary={
-                            tracks.filter((track: Track) => track.id === key)[0]
-                              .name
-                          }
-                          secondary={
-                            tracks.filter((track: Track) => track.id === key)[0]
-                              .artists[0].name
-                          }
-                        />
-                      </div>
-                      <ListItemSecondaryAction>
-                        <IconButton edge="end" aria-label="delete">
-                          <DeleteIcon />
-                        </IconButton>
-                      </ListItemSecondaryAction>
-                    </ListItem>
-                  );
-                }
-                return null;
-              })}
-            </List>
-          </div>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDialogOpen(false)} color="default">
-            Done
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <DuplicatesDialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        duplicates={duplicates}
+        tracks={tracks}
+        onDelete={(trackId) => onDeleteTrackClick(trackId)}
+      />
     </div>
   );
 };

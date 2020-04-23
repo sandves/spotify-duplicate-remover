@@ -61,9 +61,7 @@ export class SpotifyApi implements ISpotifyApi {
       );
     } catch (error) {
       if (error.response.status === 403) {
-        throw Error(
-          'You do not have permission to delete tracks from this playlist.'
-        );
+        throw Error(error.response.data.error.message);
       } else {
         console.error(error);
         throw Error(

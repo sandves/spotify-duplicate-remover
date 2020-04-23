@@ -54,13 +54,7 @@ const Playlists: React.FC = () => {
       <div className={classes.playlistsContainer}>
         <div className={classes.playlistGrid}>
           {duplicates
-            .filter((d: DuplicatesWithTracks) => {
-              if (d.duplicates?.duplicates === 0) {
-                return false;
-              } else {
-                return true;
-              }
-            })
+            .filter((d: DuplicatesWithTracks) => d.duplicates.duplicates > 0)
             .map((d: DuplicatesWithTracks) => {
               return (
                 <PlaylistCard

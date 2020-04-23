@@ -7,7 +7,7 @@ import { useSpotify } from '../context/SpotifyContext';
 
 export type DuplicatesWithTracks = {
   playlist: Playlist;
-  duplicates: Duplicates | undefined;
+  duplicates: Duplicates;
   tracks: Track[];
 };
 
@@ -46,7 +46,10 @@ const useDuplicates = (): DuplicateProps => {
     if (!playlists || playlists.length === 0) return;
     setLoading(true);
     for (let playlist of playlists) {
-      if (playlist.owner.id !== user.id && !playlist.collaborative) {
+      // Spotify does not allow users to delete tracks from a
+      // playlist they do not own, even if it is collaborative
+      // (at least not from the API).
+      if (playlist.owner.id !== user.id) {
         continue;
       }
 
